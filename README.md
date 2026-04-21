@@ -44,9 +44,16 @@ python train_enhanced.py
 ```bash
 conda create -n pm25gnn python=3.12 -y
 conda activate pm25gnn
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
-pip install torch_scatter torch_geometric
+
+# Install normal packages first
 pip install -r requirements_windows.txt
+
+# Install PyTorch with CUDA 12.8
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+
+# Install PyTorch Geometric dependency and package
+pip install torch-scatter -f https://data.pyg.org/whl/torch-2.11.0+cu128.html
+pip install torch-geometric
 ```
 
 Run with:
