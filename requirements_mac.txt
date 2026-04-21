@@ -1,0 +1,20 @@
+numpy==1.26.4
+scipy==1.17.1
+matplotlib==3.9.2
+geopy==2.4.1
+MetPy==1.7.1
+xarray==2023.6.0
+scikit-learn==1.5.1
+scikit-image==0.24.0
+tqdm==4.66.5
+Pillow==12.1.1
+networkx==3.3
+PyYAML==6.0.1
+bresenham==0.2.1
+arrow==1.2.3
+
+# deep learning (your project uses this)
+torch==2.10.0
+torch-geometric==2.7.0
+torch_scatter==2.1.2
+torchvision==0.25.0
