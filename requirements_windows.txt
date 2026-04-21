@@ -1,0 +1,14 @@
+arrow==1.4.0
+bresenham==0.2.1
+geopy==2.4.1
+matplotlib==3.10.8
+MetPy==1.7.1
+networkx==3.6.1
+numpy==1.26.4
+pandas==2.2.3
+Pillow==12.1.1
+PyYAML==6.0.3
+scipy==1.17.1
+tqdm==4.67.3
+xarray==2026.4.0
+
