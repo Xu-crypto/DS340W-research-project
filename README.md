@@ -24,39 +24,45 @@ Download from [Google Drive](https://drive.google.com/open?id=1R6hS5VAgjJQ_wu8i5
 
 ## Setup
 
-### Option 1: Conda (Recommended)
+**Python 3.12 is required.** Python 3.13+ and 3.14 do not work because `torch_scatter` cannot build on them.
+
+### Mac (CPU only)
 
 ```bash
 conda create -n pm25gnn python=3.12 -y
 conda activate pm25gnn
-pip install -r requirements.txt
+pip install -r requirements_mac.txt
 ```
 
-### Option 2: venv
-
+Run with:
 ```bash
-python3.12 -m venv pm25env
-source pm25env/bin/activate        # Mac/Linux
-# pm25env\Scripts\Activate.ps1     # Windows PowerShell
-pip install -r requirements.txt
+python train_enhanced.py
 ```
 
 ### Windows with GPU (CUDA)
-
-If you have an NVIDIA GPU, install PyTorch with CUDA first, then the rest:
 
 ```bash
 conda create -n pm25gnn python=3.12 -y
 conda activate pm25gnn
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128
 pip install torch_scatter torch_geometric
-pip install -r requirements.txt
+pip install -r requirements_windows.txt
 ```
+
+Run with:
+```bash
+python train_enhanced_windows.py
+```
+
+Windows uses separate files because `os.uname()` does not exist on Windows:
+- `util_windows_fixed.py` — config loader with `platform.node()` fallback
+- `dataset_windows.py` — imports from `util_windows_fixed`
+- `train_enhanced_windows.py` — imports from the Windows-compatible files
 
 ### Notes
 
-- **Python 3.12 is required.** Python 3.13+ and 3.14 do not work because `torch_scatter` cannot build on them.
 - **numpy must stay below 2.0.** Newer numpy breaks scipy and pandas compatibility.
+- The code auto-detects GPU. If CUDA is available it uses GPU, otherwise CPU.
 - If `torch_scatter` fails to install, try:
   ```bash
   pip install torch_scatter -f https://data.pyg.org/whl/torch-2.10.0+cpu.html
@@ -68,70 +74,57 @@ pip install -r requirements.txt
 ```
 PM2.5-GNN/
 ├── data/
-│   ├── KnowAir.npy              # Dataset (download separately)
-│   ├── altitude.npy              # Elevation data for graph construction
-│   └── city.txt                  # City coordinates
+│   ├── KnowAir.npy                   # Dataset (download separately)
+│   ├── altitude.npy                   # Elevation data
+│   └── city.txt                       # City coordinates
 ├── model/
-│   ├── PM25_GNN.py               # Original model
-│   ├── PM25_GNN_Enhanced.py      # Enhanced model (mine)
-│   ├── GC_LSTM.py                # Baseline
-│   ├── GRU.py                    # Baseline
-│   ├── LSTM.py                   # Baseline
-│   ├── MLP.py                    # Baseline
-│   └── cells.py                  # GRU/LSTM cell implementations
-├── losses.py                     # Frequency-weighted MAE loss
-├── train.py                      # Original training script
-├── train_enhanced.py             # Enhanced training script (mine)
-├── config.yaml                   # Original config
-├── config_enhanced.yaml          # Enhanced config (mine)
-├── graph.py                      # Graph construction
-├── dataset.py                    # Data loading
-├── util.py                       # Config loader
-├── run_experiments.sh             # Batch experiment runner
-├── requirements.txt              # Dependencies
-└── results/                      # Saved results
+│   ├── PM25_GNN.py                    # Original model
+│   ├── PM25_GNN_Enhanced.py           # Enhanced model (mine)
+│   ├── GC_LSTM.py                     # Baseline
+│   ├── GRU.py                         # Baseline
+│   ├── LSTM.py                        # Baseline
+│   ├── MLP.py                         # Baseline
+│   └── cells.py                       # GRU/LSTM cells
+├── losses.py                          # Frequency-weighted MAE loss
+├── graph.py                           # Graph construction
+│
+├── # --- Mac/Linux ---
+├── util.py                            # Config loader
+├── dataset.py                         # Data loading
+├── train.py                           # Original training script
+├── train_enhanced.py                  # Enhanced training script
+├── config_enhanced.yaml               # Enhanced config
+├── requirements_mac.txt               # Mac dependencies
+│
+├── # --- Windows ---
+├── util_windows_fixed.py              # Config loader (Windows)
+├── dataset_windows.py                 # Data loading (Windows)
+├── train_enhanced_windows.py          # Enhanced training script (Windows)
+├── requirements_windows.txt           # Windows dependencies
+│
+├── config.yaml                        # Shared config
+├── run_experiments.sh                 # Batch runner (Mac/Linux)
+└── results/                           # Saved results
 ```
 
-## Running
+## Configuration
 
-### Quick Start
-
-```bash
-python train_enhanced.py
-```
-
-This runs the Enhanced model with Combined loss on dataset 3 by default.
-
-### Change Dataset
-
-Edit `config_enhanced.yaml`:
+Edit `config_enhanced.yaml` (Mac) or `config.yaml` (Windows):
 
 ```yaml
-dataset_num: 1    # 1 = full year (2yr train), 2 = winter only, 3 = fall/winter (smallest)
-```
+# Dataset split
+dataset_num: 1    # 1 = full year (2yr train), 2 = winter only, 3 = fall/winter
 
-### Change Model
-
-```yaml
+# Model
 model: PM25_GNN_Enhanced    # mine
 # model: PM25_GNN           # original
 # model: GC_LSTM            # baseline
 # model: GRU                # baseline
-```
 
-### Change Loss
-
-```yaml
-loss: Combined    # 0.5*MSE + 0.5*fMAE (mine)
+# Loss
+loss: Combined    # 0.5*MSE + 0.5*fMAE
 # loss: MSE       # original
 # loss: fMAE      # frequency-weighted MAE only
-```
-
-### Run All Experiments
-
-```bash
-chmod +x run_experiments.sh
-./run_experiments.sh ablation
 ```
 
 ## Results
@@ -153,7 +146,7 @@ Tested on all 3 sub-datasets, 10 runs each:
 
 RMSE in µg/m³. Baseline numbers from Wang et al. (2020).
 
-### Feature Importance (from gate weights, dataset 3)
+### Feature Importance (gate weights, dataset 3)
 
 | Rank | Feature | Weight |
 |---|---|---|
@@ -174,8 +167,7 @@ MC Dropout (20 samples): mean std = 11.63 ± 0.25 µg/m³
 Results saved to `results/1_24/{dataset}/{model_name}/`:
 
 - `metric.txt` — RMSE, MAE, R², CSI, POD, FAR (mean ± std)
-- `predict.npy` — Predicted PM2.5 values
-- `label.npy` — Ground truth PM2.5 values
+- `predict.npy` / `label.npy` — Predictions and ground truth
 - `feature_importance.npy` — Gate weight averages per feature
 - `gate_weights.npy` — Raw gate weights for all test samples
 - `uncertainty.npy` — MC Dropout standard deviations
