@@ -26,6 +26,13 @@ Download from [Google Drive](https://drive.google.com/open?id=1R6hS5VAgjJQ_wu8i5
 
 **Python 3.12 is required.** Python 3.13+ and 3.14 do not work because `torch_scatter` cannot build on them.
 
+
+##First-Time Setup 
+
+```bash
+git clone https://github.com/Xu-crypto/DS340W-research-project
+
+```
 ### Mac (CPU only)
 
 ```bash
@@ -34,7 +41,34 @@ conda activate pm25gnn
 pip install -r requirements_mac.txt
 ```
 
-Run with:
+Find your computer name
+
+The code uses your computer name to select paths.
+
+Run:
+
+Mac/Linux
+```bash
+python -c "import os; print(os.uname().nodename)"
+```
+Windows
+```bash
+python -c "import platform; print(platform.node())"
+```
+Update config.yaml
+
+Open config.yaml and edit the filepath: section.
+Add your computer name and correct paths:
+
+```bash
+filepath:
+  Your-Computer-Name:
+    knowair_fp: /full/path/to/your/project/data/KnowAir.npy
+    results_dir: /full/path/to/your/project/results
+
+```
+
+Run with code:
 ```bash
 python train_enhanced.py
 ```
