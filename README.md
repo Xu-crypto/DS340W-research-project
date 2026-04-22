@@ -56,7 +56,7 @@ Windows
 ```bash
 python -c "import platform; print(platform.node())"
 ```
-Update config.yaml
+Update config_enhanced.yaml
 
 Open config.yaml and edit the filepath: section.
 Add your computer name and correct paths:
