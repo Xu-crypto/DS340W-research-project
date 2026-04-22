@@ -36,6 +36,7 @@ git clone https://github.com/Xu-crypto/DS340W-research-project
 ### Mac (CPU only)
 
 ```bash
+cd DS340W-research-project
 conda create -n pm25gnn python=3.12 -y
 conda activate pm25gnn
 pip install -r requirements_mac.txt
@@ -76,6 +77,7 @@ python train_enhanced.py
 ### Windows with GPU (CUDA)
 
 ```bash
+cd DS340W-research-project
 conda create -n pm25gnn python=3.12 -y
 conda activate pm25gnn
 
